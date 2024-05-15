@@ -1,17 +1,17 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { CurrentUser } from '@/auth/current-user-decorator';
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { UserPayload } from '@/auth/jwt.strategy';
-import { ZodValidationPipe } from '@/pipes/zod-validation-pipe';
-import { PrismaService } from '@/prisma/prisma.service';
-import { z } from 'zod';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { CurrentUser } from '@/auth/current-user-decorator'
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { UserPayload } from '@/auth/jwt.strategy'
+import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
+import { PrismaService } from '@/prisma/prisma.service'
+import { z } from 'zod'
 
 const createQuestionBodySchema = z.object({
   title: z.string(),
   content: z.string(),
-});
+})
 
-type CreateQuestionBodySchema = z.infer<typeof createQuestionBodySchema>;
+type CreateQuestionBodySchema = z.infer<typeof createQuestionBodySchema>
 
 @Controller('/questions')
 @UseGuards(JwtAuthGuard)
@@ -22,12 +22,12 @@ export class CreateQuestionController {
   async handle(
     @CurrentUser() user: UserPayload,
     @Body(new ZodValidationPipe(createQuestionBodySchema))
-    body: CreateQuestionBodySchema
+    body: CreateQuestionBodySchema,
   ) {
-    const { title, content } = body;
-    const { sub: userId } = user;
+    const { title, content } = body
+    const { sub: userId } = user
 
-    const slug = this.convertToSlug(title);
+    const slug = this.convertToSlug(title)
 
     await this.prisma.question.create({
       data: {
@@ -36,7 +36,7 @@ export class CreateQuestionController {
         content,
         slug,
       },
-    });
+    })
   }
 
   private convertToSlug(title: string): string {
@@ -45,6 +45,6 @@ export class CreateQuestionController {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
+      .replace(/\s+/g, '-')
   }
 }
